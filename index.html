@@ -1,1 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime</title>
 
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            font-family: sans-serif; 
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .top-template {
+            height: 50px;
+            background-color: #111;
+            width: 100%;
+        }
+
+        .template-content {
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .template-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 400;
+            margin: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .search-input-container {
+            margin-left: 15px;
+            margin-right: 0;
+            width: 50%;
+            display: block;
+            flex-grow: 0;
+            flex-shrink: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 15px;
+            border: 2px solid #444; 
+            background-color: #222;
+            color: white;
+            font-size: 13px;
+            border-radius: 25px;
+        }
+
+        #thumbnail-page {
+              display: block;
+              padding-top: 15px;
+        }
+
+        .thumbnail-container {
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .thumbnail-block {
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .thumbnail-item {
+            position: relative;
+            width: 100%;
+            padding-top: 150%;
+            background-color: #1a1a1a;
+            overflow: hidden;
+border-radius: 5px ;
+        }
+
+        .thumbnail-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-info {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #ddd;
+            text-align: center;
+            font-weight: 400;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #video-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+            padding-bottom: 50px;
+        }
+
+        .video-main-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #iframe-player-wrapper {
+            width: 100%;
+            position: relative;
+            padding-top: 56.25%;
+            background: #000;
+        }
+
+        .responsive-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #episode-box {
+            background-color: #111;
+            width: 100%;
+            height: 450px;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #333;
+        }
+
+        .episode-row {
+            display: flex;
+            align-items: center;
+            padding: 11px 20px;
+            border-bottom: 1px solid #222;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            color: #ddd;
+            font-size: 13px;
+            background-color: #111;
+        }
+
+        .episode-row:hover {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        .episode-row.active {
+            background-color: #000;
+            color: #ffbade;
+            border-left: 4px solid #ffbade;
+            font-weight: bold;
+        }
+
+        .episode-num {
+            width: 40px;
+            font-weight: 400;
+            font-size: 13px;
+            color: #ddd;
+        }
+
+        .episode-row.active .episode-num {
+            color: #ffbade;
+            font-weight: 500;
+        }
+
+        .episode-title {
+            flex-grow: 1;
+            font-weight: 400;
+            margin-right: 18px; 
+        }
+
+        #pagination-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-template">
+        <div class="template-content">
+               <p class="template-title" id="template-title">Anime</p>
+
+               <div class="search-input-container" id="search-input-container">
+                    <input type="text" class="search-input" id="search-input" placeholder="Search Anime...">
+               </div>
+
+               </div>
+    </div>
+
+    <div class="page-container" id="thumbnail-page">
+        <div class="thumbnail-container" id="thumbnail-list">
+        </div>
+
+            <div id="pagination-container"></div>
+    </div>
+
+    <div id="video-page">
+        <div class="video-main-area">
+
+            <div style="width: 100%;">
+                <div class="video-container-wrapper">
+                    <div id="iframe-player-wrapper">
+
+                        <iframe id="iframePlayer" class="responsive-iframe"
+                                src="" frameborder="0" allowfullscreen
+                                allow="autoplay; fullscreen; picture-in-picture">
+                        </iframe>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="episode-box">
+            </div>
+
+        </div>
+    </div>
+
+    <script src="data.json"></script>
+
+    <script>
+
+        const elements = {
+            thumbnailPage: document.getElementById('thumbnail-page'),
+            videoPage: document.getElementById('video-page'),
+            thumbnailList: document.getElementById('thumbnail-list'),
+            searchInputContainer: document.getElementById('search-input-container'),
+            searchInput: document.getElementById('search-input'),
+            templateTitle: document.getElementById('template-title'),
+            episodeBox: document.getElementById('episode-box'),
+            iframePlayer: document.getElementById('iframePlayer'),
+        };
+        let currentEpisodes = []; 
+        let currentEpisodeIndex = -1;
+        let currentAnimeIndex = -1;
+
+        const itemsPerBatch = 30; 
+        let allFilteredData = [];
+        let itemsRendered = 0;
+        let isLoading = false;
+
+        const MAX_TITLE_LENGTH = 45;
+
+        function formatEpisodeTitle(animeTitle, titleCode) {
+            let episodeCode = titleCode || "EPISODE";
+            episodeCode = episodeCode.toUpperCase();
+
+            let displayTitle = animeTitle;
+            if (animeTitle.length > MAX_TITLE_LENGTH) {
+                displayTitle = animeTitle.substring(0, MAX_TITLE_LENGTH).trim() + "...";
+            }
+
+            return `${displayTitle} ${episodeCode}`;
+        }
+
+
+        function processAnimeItem(item) {
+            if (!item.URL || item.URL.length === 0) {
+                 item.TITLE = item.TITLE || "No URL Found";
+                 item.TOTAL_EPISODES = 0;
+                 item.EPISODE_DATA = [];
+                 return;
+            }
+            item.TITLE = item.TITLE || "Anime Series";
+            item.TOTAL_EPISODES = item.URL.length;
+
+            item.EPISODE_DATA = item.URL.map(ep => ({
+                 url: ep[0],
+                 title: formatEpisodeTitle(item.TITLE, ep[1])
+            }));
+            delete item.URL;
+        }
+
+        function updateHistory(epNum, method = 'replace') {
+             const historyMethod = method === 'push' ? history.pushState : history.replaceState;
+
+             historyMethod(
+                 { page: 'video', episode: epNum, animeIndex: currentAnimeIndex },
+                 `Episode ${epNum}`,
+                 `#episode${epNum}`
+             );
+        }
+
+        function loadEpisode(episodes, episodeIndex) {
+            currentEpisodes = episodes;
+            currentEpisodeIndex = episodeIndex;
+
+            const fullVideoUrl = episodes[episodeIndex].url;
+
+            if (elements.iframePlayer) {
+                elements.iframePlayer.src = fullVideoUrl;
+            }
+
+            document.querySelectorAll('.episode-row').forEach(row => {
+                row.classList.remove('active');
+            });
+            const activeRow = document.getElementById(`episode-row-${episodeIndex}`);
+            if (activeRow) {
+                activeRow.classList.add('active');
+                activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function renderEpisodeList(animeItem, animeIndex) {
+            elements.episodeBox.innerHTML = '';
+            currentAnimeIndex = animeIndex;
+
+            const episodes = animeItem.EPISODE_DATA;
+            currentEpisodes = episodes;
+
+            if (!episodes || episodes.length === 0) return; 
+
+            episodes.forEach((episode, index) => {
+                const episodeNum = index + 1;
+
+                const row = document.createElement('div');
+                row.className = 'episode-row';
+                row.id = `episode-row-${index}`;
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'episode-num';
+                numSpan.textContent = episodeNum;
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'episode-title';
+                titleSpan.textContent = episode.title;
+
+                row.appendChild(numSpan);
+                row.appendChild(titleSpan);
+
+                row.addEventListener('click', () => {
+                    loadEpisode(episodes, index); 
+                    updateHistory(episodeNum, 'replace');
+                });
+
+                elements.episodeBox.appendChild(row);
+            });
+        }
+        
+        function renderThumbnails(query = '', append = false) {
+            if (isLoading) return;
+
+            const normalizedQuery = query.toLowerCase().trim();
+
+            if (!append) {
+                elements.thumbnailList.innerHTML = '';
+                itemsRendered = 0;
+
+                allFilteredData = data.filter(item => {
+                    return item.TITLE && item.TITLE.toLowerCase().includes(normalizedQuery);
+                });
+
+                const state = { page: 'home', q: query };
+                const title = `Home`;
+                const hash = '#home';
+                if (window.location.hash !== hash || (history.state && history.state.q !== query)) {
+                     history.pushState(state, title, hash);
+                }
+            }
+
+            if (itemsRendered >= allFilteredData.length) {
+                isLoading = false;
+                return;
+            }
+
+            isLoading = true;
+
+            const startIndex = itemsRendered;
+            const endIndex = Math.min(startIndex + itemsPerBatch, allFilteredData.length);
+            const itemsToRender = allFilteredData.slice(startIndex, endIndex);
+
+            itemsToRender.forEach((item) => {
+                const block = document.createElement('div');
+                block.className = 'thumbnail-block';
+
+                block.addEventListener('click', () => {
+                    showVideoPage(item, item.animeIndex, 0);
+                    history.pushState(
+                        { page: 'video', episode: 1, animeIndex: item.animeIndex },
+                        `Episode 1`,
+                        `#episode1`
+                    );
+                });
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'thumbnail-item';
+                const img = document.createElement('img');
+
+                img.src = item.IMG;
+                img.alt = item.TITLE;
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'thumbnail-info';
+
+                infoDiv.textContent = item.TITLE;
+
+                itemDiv.appendChild(img);
+                block.appendChild(itemDiv);
+                block.appendChild(infoDiv);
+                elements.thumbnailList.appendChild(block);
+            });
+
+            itemsRendered = endIndex;
+            isLoading = false;
+        }
+
+        function loadNextBatch() {
+            if (isLoading || elements.videoPage.style.display === 'block') return;
+
+            const scrollHeight = document.documentElement.scrollHeight;
+            const scrollTop = document.documentElement.scrollTop;
+            const clientHeight = document.documentElement.clientHeight;
+
+            if (scrollTop + clientHeight >= scrollHeight - 200) {
+                 renderThumbnails(elements.searchInput.value, true); 
+            }
+        }
+
+        window.addEventListener('scroll', loadNextBatch);
+
+        function showVideoPage(animeItem, animeIndex, episodeToLoadIndex = 0) {
+            elements.thumbnailPage.style.display = 'none';
+            elements.videoPage.style.display = 'block';
+
+            elements.searchInputContainer.style.display = 'none';
+
+            elements.templateTitle.textContent = "Anime";
+
+            const episodes = animeItem.EPISODE_DATA;
+            renderEpisodeList(animeItem, animeIndex);
+
+            if (episodes && episodes.length > 0) {
+                loadEpisode(episodes, episodeToLoadIndex);
+            } else {
+                 elements.iframePlayer.src = 'about:blank';
+            }
+        }
+
+        function showHomePage(query = '') {
+            elements.videoPage.style.display = 'none';
+            elements.thumbnailPage.style.display = 'block';
+
+            elements.searchInputContainer.style.display = 'block';
+
+            elements.templateTitle.textContent = "Anime";
+            if (elements.iframePlayer) { elements.iframePlayer.src = "about:blank"; }
+            elements.episodeBox.innerHTML = '';
+            elements.searchInput.value = query;
+
+            renderThumbnails(query, false);
+        }
+
+        function setupInteractionHandlers() {
+            elements.templateTitle.addEventListener('click', () => {
+                if (elements.videoPage.style.display === 'block' || elements.searchInput.value !== '') {
+                    showHomePage('');
+                }
+            });
+
+            window.addEventListener('popstate', (event) => {
+                if (event.state === null || event.state.page === 'home') {
+                    const query = event.state && event.state.q ? event.state.q : '';
+                    showHomePage(query);
+                } else if (event.state && event.state.page === 'video') {
+                    const episodeNumber = event.state.episode;
+                    const animeIndex = event.state.animeIndex || 0;
+                    const currentAnime = data[animeIndex];
+                    if (currentAnime) showVideoPage(currentAnime, animeIndex, episodeNumber - 1);
+                }
+            });
+
+            elements.searchInput.addEventListener('input', () => {
+                const currentQuery = elements.searchInput.value;
+                renderThumbnails(currentQuery, false);
+            });
+        }
+
+        function initializeApp() {
+
+            data.forEach((item, index) => {
+                processAnimeItem(item);
+                item.animeIndex = index;
+            });
+
+            setupInteractionHandlers();
+
+            const hash = window.location.hash;
+            const episodeMatch = hash.match(/^#episode(\d+)$/);
+            const defaultAnime = data[0];
+            const animeIndex = 0;
+
+            if (episodeMatch && defaultAnime && defaultAnime.EPISODE_DATA && defaultAnime.EPISODE_DATA.length > 0) {
+                const episodeNumber = parseInt(episodeMatch[1]);
+                const totalEpisodes = defaultAnime.TOTAL_EPISODES;
+                if (episodeNumber > 0 && episodeNumber <= totalEpisodes) {
+                    showVideoPage(defaultAnime, animeIndex, episodeNumber - 1);
+                    history.replaceState({ page: 'video', episode: episodeNumber, animeIndex: animeIndex }, defaultAnime.TITLE, hash);
+                    return;
+                }
+            }
+
+            showHomePage('');
+
+            history.replaceState({ page: 'home', q: '' }, `Home`, `#home`);
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+
+</body>
+</html> 
