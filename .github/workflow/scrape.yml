@@ -14,9 +14,9 @@ jobs:
           python-version: "3.x"
 
       - run: pip install requests beautifulsoup4 selenium
-      - run: python app.py > data.json
+      - run: python app.py > data
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          file_pattern: data.json
+          file_pattern: data
           commit_message: update
 
